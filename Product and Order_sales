@@ -1,0 +1,66 @@
+--DATE CLEANING  DATA CHANGE 
+select *from Product
+; 
+ALTER TABLE Product
+Alter column ListPrice DECIMAL(10,2); 
+select *from Product
+
+select *from SalesOrderDetail; 
+
+ALTER TABLE SalesOrderDetail 
+ALTER COLUMN OrderQty Int; 
+
+ALTER TABLE SalesOrderDetail 
+ALTER COLUMN LineTotal DECIMAL(10,2);  
+
+ALTER TABLE SalesOrderDetail 
+ALTER COLUMN UnitPrice DECIMAL(10,2); 
+
+ALTER TABLE SalesOrderDetail 
+ALTER COLUMN ModifiedDate DATE;  
+
+select *from SalesOrderDetail
+
+-- check specific columns in Product table 
+SELECT ProductID, Name, ProductNumber, Color, ListPrice from Product; 
+-- check specific columns in SalesOrderDetail table 
+SELECT SalesOrderID, SalesOrderDetailID, ProductID, OrderQty, UnitPrice, UnitPriceDiscount, LineTotal, ModifiedDate from SalesOrderDetail
+ORDER BY ProductID; 
+
+--Each product and its subtotal 
+SELECT a.ProductID, round(sum(a.ListPrice*b.OrderQty),2) as subtotal  
+FROM Product as a 
+JOIN SalesOrderDetail as b 
+ON a.ProductID=b.ProductID
+GROUP BY a.ProductID
+ORDER BY subtotal DESC; 
+
+--How many Red color Helmets are sold in 2013 and 2014?
+SELECT ProductID FROM Product where name like '%Helmet%' and Color='red' ; 
+
+SELECT sum(a.OrderQty) as RedHelmets_SalesQty FROM 
+(SELECT * FROM SalesOrderDetail WHERE year(ModifiedDate)=2013 or YEAR(ModifiedDate)=2014) a
+WHERE a.ProductID IN (SELECT ProductID FROM Product where name like '%Helmet%' and Color='red')
+; 
+--How many items sold in 2013 and 2014 have a Multi color?
+SELECT ProductID FROM Product where Color='Multi'; 
+
+SELECT sum(a.OrderQty) as SalesQty FROM 
+(SELECT * FROM SalesOrderDetail WHERE year(ModifiedDate)=2013 or YEAR(ModifiedDate)=2014) a
+WHERE a.ProductID IN (SELECT ProductID FROM Product where Color='Multi')
+;
+--What is the combined Sales total for all the helmets sold in 2013 and 2014?
+
+SELECT sum(LineTotal) as AllHelmets_Sales FROM 
+(SELECT * FROM SalesOrderDetail WHERE year(ModifiedDate)=2013 or year(ModifiedDate)=2014) a
+WHERE a.ProductID IN (SELECT ProductID FROM Product where name like '%Helmet%')
+; 
+--How many Yellow Color Touring-1000 where sold in 2013 and 2014?
+SELECT sum(a.OrderQty) as Touring1000_SalesQty FROM 
+(SELECT * FROM SalesOrderDetail WHERE year(ModifiedDate)=2013 or YEAR(ModifiedDate)=2014) a
+WHERE a.ProductID IN (SELECT ProductID FROM Product where name like '%Touring-1000%' and Color='yellow')
+; 
+--What was the total sales in 2013 and 2014?
+SELECT sum(LineTotal) as Total_Sales FROM 
+(SELECT * FROM SalesOrderDetail WHERE year(ModifiedDate)=2013 or YEAR(ModifiedDate)=2014) a
+;
